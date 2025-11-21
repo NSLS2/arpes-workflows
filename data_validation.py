@@ -224,7 +224,7 @@ def data_validation_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
     start_time = time.monotonic()
     validate(run_client, fix_errors=True, try_reading=True, raise_on_error=False)
     elapsed_time = time.monotonic() - start_time
-    logger.info(f"{elapsed_time = }")
+    logger.info(f"Finished validating data; {elapsed_time = }")
 
 
 @flow(log_prints=True)
