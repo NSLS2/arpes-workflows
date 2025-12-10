@@ -118,7 +118,7 @@ def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
 
             # TODO: add the "Note" field, if available
             nxfile.entry.note = nx.NXnote()
-            nxfile.entry.note.description = nx.NXfield("")   # '{}'.format(ui().note_TE.toPlainText())
+            nxfile.entry.note.description = nx.NXfield(str(run_client.start.get("user_note", "")))
 
     except Exception as e:
         logger.error(f"An error occurred while adding metadata to file: {e}")
