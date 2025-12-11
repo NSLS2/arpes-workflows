@@ -33,8 +33,13 @@ def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
         return
     
     # Copy the file to the destination directory and update the fpath variable
+    # For example:
+    # /nsls2/data3/esm/proposals/commissioning/pass-319467/assets/mbs/2025/12/11/sample_name/TEST_0002.nxs
+    # /nsls2/data3/esm/proposals/commissioning/pass-319467/export/2025_12_11/sample_name/TEST_0002.nxs
     try:
-        fpath_dest = Path(str(fpath_orig).split('assets')[0]) / 'exported' / Path(fpath_orig).name
+        prefix, suffix = str(fpath_orig).split('assets')
+        suffix = suffix.split('/', 2)[-1].replace('/', '_', 2)
+        fpath_dest = Path(prefix) / 'export' / suffix
         Path(fpath_dest).parent.mkdir(parents=True, exist_ok=True)
 
         shutil.copy(fpath_orig, fpath_dest)
@@ -51,7 +56,7 @@ def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
     baseline = run_client["baseline"].read(variables=['FEslit_h_gap_readback', 'FEslit_v_gap_readback', \
                 'EPU105_gap', 'EPU105_phase', 'EPU57_gap', 'EPU57_phase',
                 'PGM_Grating_lines', 'PGM_Energy', 'ExitSlitA_h_gap', 'ExitSlitA_v_gap',
-                'LT_X', 'LT_Y', 'LT_Z', 'LT_Rx', 'LT_Ry', 'LT_Rz',
+                'LT_X', 'LT_Y', 'LT_Z', 'LT_Rx', 'LT_Ry', 'LT_Rz', 'D1', 'D2', 'Stinger'
                 ]).tail(1)
     values = {k: v.values[0] for k, v in primary.data_vars.items()} \
         | {k: v.item() for k, v in baseline.data_vars.items()}
@@ -64,7 +69,6 @@ def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
         nxfile.entry.instrument.analyzer.loc_name = nx.NXfield('ESM - MBS: L4-054')
         nxfile.entry.instrument.analyzer.energies = np.linspace(values["mbs_escale_min"], values["mbs_escale_max"], values["mbs_num_steps"], endpoint=True)
         nxfile.entry.instrument.analyzer.angles = np.linspace(values["mbs_xscale_min"], values["mbs_xscale_max"], values["mbs_num_slice"], endpoint=True)
-
         nxfile.entry.instrument.analyzer.lens_mode = nx.NXfield(values["mbs_lens_mode"])
         nxfile.entry.instrument.analyzer.acq_mode = nx.NXfield(values["mbs_acq_mode"])
         nxfile.entry.instrument.analyzer.pass_energy = nx.NXfield(float(values["mbs_pass_energy"]), units='eV')   
@@ -93,6 +97,7 @@ def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
         nxfile.entry.instrument.insertion_device.phase_105 = nx.NXfield(np.round(values["EPU105_phase"],2), units='mm')   # PV:SR:C21-ID:G1B{EPU:2-Ax:Phase}Mtr.RBV
         nxfile.entry.instrument.insertion_device.gap_57 = nx.NXfield(np.round(values["EPU57_gap"],2), units='mm')   # PV:SR:C21-ID:G1A{EPU:1-Ax:Gap}Mtr.RBV
         nxfile.entry.instrument.insertion_device.phase_57 = nx.NXfield(np.round(values["EPU57_phase"],2), units='mm')   # PV:SR:C21-ID:G1A{EPU:1-Ax:Phase}Mtr.RBV
+        
         nxfile.entry.instrument.monochromator=nx.NXmonochromator()
         nxfile.entry.instrument.monochromator.grating=nx.NXfield(values["PGM_Grating_lines"], units='lines/mm')
         nxfile.entry.instrument.monochromator.energy=nx.NXfield(np.round(values["PGM_Energy"],4), units='eV')  # PV:XF:21IDB-OP{Mono:1-Ax:8_Eng}Mtr.RBV
@@ -107,12 +112,11 @@ def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
         nxfile.entry.instrument.manipulator.pos_Rx=nx.NXfield(np.round(values["LT_Rx"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R3}Mtr.RBV
         nxfile.entry.instrument.manipulator.pos_Ry=nx.NXfield(np.round(values["LT_Ry"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R1}Mtr.RBV
         nxfile.entry.instrument.manipulator.pos_Rz=nx.NXfield(np.round(values["LT_Rz"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R2}Mtr.RBV
-        # nxfile.entry.instrument.manipulator.D1=nx.NXfield(EpicsSignal('XF:21IDD-ES{PS:Heat3}D1_RB').get(),units='K')
-        # nxfile.entry.instrument.manipulator.D2=nx.NXfield(EpicsSignal('XF:21IDD-ES{PS:Heat3}D2_RB').get(),units='K')
-        # nxfile.entry.instrument.manipulator.Stinger=nx.NXfield(EpicsSignal('XF:21ID1-ES{TCtrl:2-Chan:A}T-I').get(),units='K')
+        nxfile.entry.instrument.manipulator.D1=nx.NXfield(np.round(values["D1"],2),units='K')  # F:21IDD-ES{PS:Heat3}D1_RB
+        nxfile.entry.instrument.manipulator.D2=nx.NXfield(np.round(values["D2"],2),units='K')  # XF:21IDD-ES{PS:Heat3}D2_RB
+        nxfile.entry.instrument.manipulator.Stinger=nx.NXfield(np.round(values["Stinger"],2),units='K')  # XF:21ID1-ES{TCtrl:2-Chan:A}T-I
         nxfile.entry.instrument.manipulator.sample_bias=nx.NXfield(0, units='V')
 
-        # TODO: add the "Note" field, if available
         nxfile.entry.note = nx.NXnote()
         nxfile.entry.note.description = nx.NXfield(str(run_client.start.get("user_note", "")))
 
