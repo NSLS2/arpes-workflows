@@ -71,7 +71,7 @@ def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
         nxfile.entry.instrument.analyzer.angles = np.linspace(values["mbs_xscale_min"], values["mbs_xscale_max"], values["mbs_num_slice"], endpoint=True)
         nxfile.entry.instrument.analyzer.lens_mode = nx.NXfield(values["mbs_lens_mode"])
         nxfile.entry.instrument.analyzer.acq_mode = nx.NXfield(values["mbs_acq_mode"])
-        nxfile.entry.instrument.analyzer.pass_energy = nx.NXfield(float(values["mbs_pass_energy"]), units='eV')   
+        nxfile.entry.instrument.analyzer.pass_energy = nx.NXfield(float(values["mbs_pass_energy"][2:]), units='eV')   
         nxfile.entry.instrument.analyzer.dither_steps = nx.NXfield(values["mbs_dith_steps"])
         nxfile.entry.instrument.analyzer.energy_width = nx.NXfield(values["mbs_width"], units='eV')
         nxfile.entry.instrument.analyzer.entrance_slit_direction = nx.NXfield('vertical')
