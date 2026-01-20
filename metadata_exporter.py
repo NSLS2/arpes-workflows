@@ -11,17 +11,9 @@ from tiled.client import from_profile
 from tiled.utils import path_from_uri
 
 
-BEAMLINE_OR_ENDSTATION = "arpes"
-
 @task(retries=2, retry_delay_seconds=10)
-def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
+def export_metadata_task(run_client):
     logger = get_run_logger()
-
-    api_key = Secret.load(f"tiled-{beamline_acronym}-api-key", _sync=True).get()
-    tiled_client = from_profile("nsls2", api_key=api_key)
-    run_client = tiled_client[beamline_acronym]["migration"][uid]
-    logger.info(f"Obtained a Tiled client for Bluesky Run with uid {uid}. Exporting metadata...")
-
     start_time = time.monotonic()
 
     # Find the data file that needs to be augmented with metadata
@@ -125,5 +117,16 @@ def export_metadata_task(uid, beamline_acronym=BEAMLINE_OR_ENDSTATION):
 
 
 @flow(log_prints=True)
-def metadata_export_flow(uid):
-    export_metadata_task(uid)
+def metadata_export_flow(uid, beamline_acronym="arpes"):
+    logger = get_run_logger()
+
+    api_key = Secret.load(f"tiled-{beamline_acronym}-api-key", _sync=True).get()
+    tiled_client = from_profile("nsls2", api_key=api_key)
+    run_client = tiled_client[beamline_acronym]["migration"][uid]
+    logger.info(f"Obtained a Tiled client for Bluesky Run with uid {uid}. Exporting metadata...")
+
+    if ('primary' in run_client) and ('mbs_image' in run_client['primary']):
+        export_metadata_task(run_client)
+
+    else:
+        logger.warning(f"No 'primary/mbs_image' data found for run {uid}. Skipping metadata export.")
