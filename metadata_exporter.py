@@ -26,10 +26,10 @@ def export_metadata_task(run_client):
     
     # Copy the file to the destination directory and update the fpath variable
     # For example:
-    # /nsls2/data3/esm/proposals/commissioning/pass-319467/assets/mbs/2025/12/11/sample_name/TEST_0002.nxs
+    # /nsls2/data3/esm/proposals/commissioning/pass-319467/assets/mbs/2025_12_11/sample_name/TEST_0002.nxs
     # /nsls2/data3/esm/proposals/commissioning/pass-319467/export/2025_12_11/sample_name/TEST_0002.nxs
     prefix, suffix = str(fpath_orig).split('assets')
-    suffix = suffix.split('/', 2)[-1].replace('/', '_', 2)
+    suffix = suffix.split('/', 2)[-1]
     fpath_dest = Path(prefix) / 'export' / suffix
     Path(fpath_dest).parent.mkdir(parents=True, exist_ok=True)
 
