@@ -98,8 +98,6 @@ def export_metadata_task(run_client):
 
         nxfile.entry.instrument.manipulator=nx.NXpositioner()
         nxfile.entry.instrument.manipulator.type=nx.NXfield('6dof-xyzRxRyRz')
-        nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
-        nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
         nxfile.entry.instrument.manipulator.pos_z=nx.NXfield(np.round(values["LT_Z"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Z}Mtr.RBV
         nxfile.entry.instrument.manipulator.pos_Rx=nx.NXfield(np.round(values["LT_Rx"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R3}Mtr.RBV
         nxfile.entry.instrument.manipulator.pos_Ry=nx.NXfield(np.round(values["LT_Ry"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R1}Mtr.RBV
@@ -127,6 +125,9 @@ def export_metadata_task(run_client):
             # Keep the lists of actual positions
             nxfile.entry.instrument.manipulator.pos_act_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
             nxfile.entry.instrument.manipulator.pos_act_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
+        else:
+            nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
+            nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
 
     elapsed_time = time.monotonic() - start_time
     logger.info(f"Finished exporting metadata; {elapsed_time = }")
