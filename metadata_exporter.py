@@ -40,7 +40,7 @@ def export_metadata_task(run_client):
     baseline = run_client["baseline"].read(variables=['FEslit_h_gap_readback', 'FEslit_v_gap_readback', \
                 'EPU105_gap', 'EPU105_phase', 'EPU57_gap', 'EPU57_phase',
                 'PGM_Grating_lines', 'PGM_Energy', 'ExitSlitA_h_gap', 'ExitSlitA_v_gap',
-                'LT_X', 'LT_Y', 'LT_Z', 'LT_Rx', 'LT_Ry', 'LT_Rz', 'D1', 'D2', 'Stinger'
+                'LT_X', 'LT_Y', 'LT_Z', 'LT_Rx', 'LT_Ry', 'LT_Rz', 'D1', 'D2', 'Stinger',
                 ]).tail(1)
     primary = run_client["primary"].read(variables = ['mbs_dith_steps', 'mbs_act_scans']).tail(1)
     config_data = run_client['primary'].metadata['configuration']['mbs']['data']
@@ -125,6 +125,13 @@ def export_metadata_task(run_client):
             # Keep the lists of actual positions
             nxfile.entry.instrument.manipulator.pos_act_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
             nxfile.entry.instrument.manipulator.pos_act_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
+        elif user_note == "XAS scan":
+            primary = run_client["primary"].read(variables = ['PGM_Energy', 'xqem01_current1_mean_value', 'mbs_total_intensity'])
+            nxfile.entry.instrument.monochromator.energy_arr=nx.NXfield(np.round(primary['PGM_Energy'].to_numpy(),4), units='eV')
+            nxfile.entry.instrument.monochromator.current_arr=nx.NXfield(np.round(primary['xqem01_current1_mean_value'].to_numpy(),4), units='uA')
+            nxfile.entry.instrument.monochromator.intensity_arr=nx.NXfield(np.round(primary['mbs_total_intensity'].to_numpy(),4))
+            nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
+            nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
         else:
             nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
             nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
