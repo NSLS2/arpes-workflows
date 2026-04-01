@@ -110,6 +110,7 @@ def export_metadata_task(run_client):
         user_note = str(run_client.start.get("user_note", ""))
         nxfile.entry.note = nx.NXnote()
         nxfile.entry.note.description = nx.NXfield(user_note)
+        nxfile.entry.note.bluesky_uid = nx.NXfield(run_client.start['uid'])
 
         # Custom metadata for XY scans only -- include arrays of scanned positions
         if (user_note == "XY scan") and (run_client.start.get("plan_name") == "grid_scan"):
