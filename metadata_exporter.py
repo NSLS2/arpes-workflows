@@ -128,9 +128,17 @@ def export_metadata_task(run_client):
             nxfile.entry.instrument.manipulator.pos_act_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
         elif user_note == "XAS scan":
             primary = run_client["primary"].read(variables = ['PGM_Energy', 'qem07_current1_mean_value', 'mbs_total_intensity'])
-            nxfile.entry.instrument.monochromator.energy_arr=nx.NXfield(np.round(primary['PGM_Energy'].to_numpy(),4), units='eV')
-            nxfile.entry.instrument.monochromator.current_arr=nx.NXfield(np.round(primary['qem07_current1_mean_value'].to_numpy(),4), units='uA')
-            nxfile.entry.instrument.monochromator.intensity_arr=nx.NXfield(np.round(primary['mbs_total_intensity'].to_numpy(),4))
+
+            # Sort the arrays according to energy levels
+            energy_arr = primary['PGM_Energy'].to_numpy()
+            sorted_indices = np.argsort(energy_arr)
+            energy_arr = energy_arr[sorted_indices]
+            current_arr = primary['qem07_current1_mean_value'].to_numpy()[sorted_indices]
+            intensity_arr = primary['mbs_total_intensity'].to_numpy()[sorted_indices]
+
+            nxfile.entry.instrument.monochromator.energy_arr=nx.NXfield(np.round(energy_arr, 4), units='eV')
+            nxfile.entry.instrument.monochromator.current_arr=nx.NXfield(np.round(current_arr, 4), units='uA')
+            nxfile.entry.instrument.monochromator.intensity_arr=nx.NXfield(np.round(intensity_arr, 4))
             nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
             nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
         else:
