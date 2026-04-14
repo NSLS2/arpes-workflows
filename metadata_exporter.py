@@ -11,7 +11,7 @@ from data_validation import get_run
 
 
 @task(retries=2, retry_delay_seconds=10)
-def export_metadata_task(run_client):
+def export_metadata_task(run_client, dry_run=False):
     logger = get_run_logger()
     start_time = time.monotonic()
 
@@ -22,7 +22,7 @@ def export_metadata_task(run_client):
     else:
         logger.error(f"Data file not found at {fpath_orig}, aborting metadata export.")
         raise FileNotFoundError(f"Data file not found at {fpath_orig}")
-    
+
     # Copy the file to the destination directory and update the fpath variable
     # For example:
     # /nsls2/data3/esm/proposals/commissioning/pass-319467/assets/mbs/2025_12_11/sample_name/TEST_0002.nxs
@@ -32,8 +32,11 @@ def export_metadata_task(run_client):
     fpath_dest = Path(prefix) / 'export' / suffix
     Path(fpath_dest).parent.mkdir(parents=True, exist_ok=True)
 
-    shutil.copy(fpath_orig, fpath_dest)
-    logger.info(f"File '{fpath_orig}' copied successfully to '{fpath_dest}'")
+    if dry_run:
+        logger.info(f"Dry_run: did not copy '{fpath_orig}' to '{fpath_dest}'")
+    else:
+        shutil.copy(fpath_orig, fpath_dest)
+        logger.info(f"File '{fpath_orig}' copied successfully to '{fpath_dest}'")
 
     # Read the metadata from Tiled
     baseline = run_client["baseline"].read(variables=['FEslit_h_gap_readback', 'FEslit_v_gap_readback', \
@@ -149,14 +152,14 @@ def export_metadata_task(run_client):
 
 
 @flow(log_prints=True)
-def metadata_export_flow(uid, beamline_acronym="arpes"):
+def metadata_export_flow(uid, beamline_acronym="arpes", api_key=None, dry_run=False):
     logger = get_run_logger()
 
     run_client = get_run(uid, beamline_acronym=beamline_acronym, api_key=api_key)
     logger.info(f"Obtained a Tiled client for Bluesky Run with uid {uid}. Exporting metadata...")
 
     if ('primary' in run_client) and ('mbs_image' in run_client['primary']):
-        export_metadata_task(run_client)
+        export_metadata_task(run_client, dry_run=dry_run)
 
     else:
         logger.warning(f"No 'primary/mbs_image' data found for run {uid}. Skipping metadata export.")
