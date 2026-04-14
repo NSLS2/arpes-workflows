@@ -25,15 +25,12 @@ deployments:
     schedule: {}
     work_pool:
       job_variables:
-        env:
-          TILED_SITE_PROFILES: /nsls2/software/etc/tiled/profiles
         image: ghcr.io/nsls2/arpes-workflows:main
         image_pull_policy: Always
         network: slirp4netns
         volumes:
           - /nsls2/data/esm/proposals:/nsls2/data/esm/proposals
           - /nsls2/data3/esm/proposals:/nsls2/data3/esm/proposals
-          - /nsls2/software/etc/tiled:/nsls2/software/etc/tiled
         container_create_kwargs:
           userns_mode: "keep-id:uid=402966,gid=402966"  # workflow-esm:workflow-esm
         auto_remove: true
