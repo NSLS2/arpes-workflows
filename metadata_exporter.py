@@ -56,96 +56,99 @@ def export_metadata_task(run_client, dry_run=False):
         | {k: config_data[k] for k in config_keys}
 
     # Add metadata to new (copied) NeXus file
-    with nx.nxload(fpath_dest, 'rw') as nxfile:
-        nxfile.entry.user=nx.NXuser()
-        nxfile.entry.user.name= run_client.start["username"] # nx.NXfield(ui().mbstable.usr_le.text())
+    if dry_run:
+        logger.info(f"Dry_run: not writing new file {fpath_dest}")
+    else:
+        with nx.nxload(fpath_dest, 'rw') as nxfile:
+            nxfile.entry.user=nx.NXuser()
+            nxfile.entry.user.name= run_client.start["username"] # nx.NXfield(ui().mbstable.usr_le.text())
 
-        nxfile.entry.instrument.analyzer.loc_name = nx.NXfield('ESM - MBS: L4-054')
-        nxfile.entry.instrument.analyzer.energies = np.linspace(values["mbs_escale_min"], values["mbs_escale_max"], values["mbs_num_steps"], endpoint=True)
-        nxfile.entry.instrument.analyzer.angles = np.linspace(values["mbs_xscale_min"], values["mbs_xscale_max"], values["mbs_num_slice"], endpoint=True)
-        nxfile.entry.instrument.analyzer.lens_mode = nx.NXfield(values["mbs_lens_mode"])
-        nxfile.entry.instrument.analyzer.acq_mode = nx.NXfield(values["mbs_acq_mode"])
-        nxfile.entry.instrument.analyzer.pass_energy = nx.NXfield(float(values["mbs_pass_energy"][2:]), units='eV')   
-        nxfile.entry.instrument.analyzer.dither_steps = nx.NXfield(values["mbs_dith_steps"])
-        nxfile.entry.instrument.analyzer.energy_width = nx.NXfield(values["mbs_width"], units='eV')
-        nxfile.entry.instrument.analyzer.entrance_slit_direction = nx.NXfield('vertical')
-        nxfile.entry.instrument.analyzer.entrance_slit_settings = nx.NXfield(' ')
-        nxfile.entry.instrument.analyzer.entrance_slit_shape = nx.NXfield('straight')
-        nxfile.entry.instrument.analyzer.entrance_slit_size = nx.NXfield(0, units='mm')
-        nxfile.entry.instrument.analyzer.kinetic_energy_center = nx.NXfield(values["mbs_center_ke"], units='eV')
-        nxfile.entry.instrument.analyzer.kinetic_energy_start = nx.NXfield(values["mbs_start_ke"], units='eV')
-        nxfile.entry.instrument.analyzer.kinetic_energy_end = nx.NXfield(values["mbs_end_ke"], units='eV')
-        nxfile.entry.instrument.analyzer.kinetic_energy_step = nx.NXfield(values["mbs_step_size"], units='eV')
-        nxfile.entry.instrument.analyzer.number_of_iterations = nx.NXfield(values["mbs_act_scans"])
-        nxfile.entry.instrument.analyzer.psu_mode=nx.NXfield(values["mbs_psu_mode"]) 
-        nxfile.entry.instrument.analyzer.slices=nx.NXfield(values["mbs_num_slice"])
-        nxfile.entry.instrument.analyzer.steps=nx.NXfield(values["mbs_num_steps"])
-        nxfile.entry.instrument.analyzer.time_for_frames=nx.NXfield(values["mbs_frames"], units='ms')
-        nxfile.entry.instrument.analyzer.local_name=nx.NXfield('ESM - MBSL4-054')
+            nxfile.entry.instrument.analyzer.loc_name = nx.NXfield('ESM - MBS: L4-054')
+            nxfile.entry.instrument.analyzer.energies = np.linspace(values["mbs_escale_min"], values["mbs_escale_max"], values["mbs_num_steps"], endpoint=True)
+            nxfile.entry.instrument.analyzer.angles = np.linspace(values["mbs_xscale_min"], values["mbs_xscale_max"], values["mbs_num_slice"], endpoint=True)
+            nxfile.entry.instrument.analyzer.lens_mode = nx.NXfield(values["mbs_lens_mode"])
+            nxfile.entry.instrument.analyzer.acq_mode = nx.NXfield(values["mbs_acq_mode"])
+            nxfile.entry.instrument.analyzer.pass_energy = nx.NXfield(float(values["mbs_pass_energy"][2:]), units='eV')   
+            nxfile.entry.instrument.analyzer.dither_steps = nx.NXfield(values["mbs_dith_steps"])
+            nxfile.entry.instrument.analyzer.energy_width = nx.NXfield(values["mbs_width"], units='eV')
+            nxfile.entry.instrument.analyzer.entrance_slit_direction = nx.NXfield('vertical')
+            nxfile.entry.instrument.analyzer.entrance_slit_settings = nx.NXfield(' ')
+            nxfile.entry.instrument.analyzer.entrance_slit_shape = nx.NXfield('straight')
+            nxfile.entry.instrument.analyzer.entrance_slit_size = nx.NXfield(0, units='mm')
+            nxfile.entry.instrument.analyzer.kinetic_energy_center = nx.NXfield(values["mbs_center_ke"], units='eV')
+            nxfile.entry.instrument.analyzer.kinetic_energy_start = nx.NXfield(values["mbs_start_ke"], units='eV')
+            nxfile.entry.instrument.analyzer.kinetic_energy_end = nx.NXfield(values["mbs_end_ke"], units='eV')
+            nxfile.entry.instrument.analyzer.kinetic_energy_step = nx.NXfield(values["mbs_step_size"], units='eV')
+            nxfile.entry.instrument.analyzer.number_of_iterations = nx.NXfield(values["mbs_act_scans"])
+            nxfile.entry.instrument.analyzer.psu_mode=nx.NXfield(values["mbs_psu_mode"]) 
+            nxfile.entry.instrument.analyzer.slices=nx.NXfield(values["mbs_num_slice"])
+            nxfile.entry.instrument.analyzer.steps=nx.NXfield(values["mbs_num_steps"])
+            nxfile.entry.instrument.analyzer.time_for_frames=nx.NXfield(values["mbs_frames"], units='ms')
+            nxfile.entry.instrument.analyzer.local_name=nx.NXfield('ESM - MBSL4-054')
 
-        nxfile.entry.instrument.insertion_device=nx.NXsource()
-        nxfile.entry.instrument.insertion_device.name = nx.NXfield('EPU105')
-        nxfile.entry.instrument.insertion_device.FEH = nx.NXfield(np.round(values["FEslit_h_gap_readback"],2), units='mm')   # PV:FE:C21A-OP{Slt:12-Ax:X}t2.C
-        nxfile.entry.instrument.insertion_device.FEV = nx.NXfield(np.round(values["FEslit_v_gap_readback"],2), units='mm')   # PV:FE:C21A-OP{Slt:12-Ax:Y}t2.C
-        nxfile.entry.instrument.insertion_device.gap_105 = nx.NXfield(np.round(values["EPU105_gap"],2), units='mm')   # PV:SR:C21-ID:G1B{EPU:2-Ax:Gap}Mtr.RBV
-        nxfile.entry.instrument.insertion_device.phase_105 = nx.NXfield(np.round(values["EPU105_phase"],2), units='mm')   # PV:SR:C21-ID:G1B{EPU:2-Ax:Phase}Mtr.RBV
-        nxfile.entry.instrument.insertion_device.gap_57 = nx.NXfield(np.round(values["EPU57_gap"],2), units='mm')   # PV:SR:C21-ID:G1A{EPU:1-Ax:Gap}Mtr.RBV
-        nxfile.entry.instrument.insertion_device.phase_57 = nx.NXfield(np.round(values["EPU57_phase"],2), units='mm')   # PV:SR:C21-ID:G1A{EPU:1-Ax:Phase}Mtr.RBV
-        
-        nxfile.entry.instrument.monochromator=nx.NXmonochromator()
-        nxfile.entry.instrument.monochromator.grating=nx.NXfield(values["PGM_Grating_lines"], units='lines/mm')
-        nxfile.entry.instrument.monochromator.energy=nx.NXfield(np.round(values["PGM_Energy"],4), units='eV')  # PV:XF:21IDB-OP{Mono:1-Ax:8_Eng}Mtr.RBV
-        nxfile.entry.instrument.monochromator.h_gap=nx.NXfield(np.round(values["ExitSlitA_h_gap"],1), units='um')  # PV:XF:21IDC-OP{Slt:1A-Ax:A1_HG}Mtr.RBV
-        nxfile.entry.instrument.monochromator.v_gap=nx.NXfield(np.round(values["ExitSlitA_v_gap"],1), units='um')  # PV:XF:21IDC-OP{Slt:1A-Ax:A1_VG}Mtr.RBV
+            nxfile.entry.instrument.insertion_device=nx.NXsource()
+            nxfile.entry.instrument.insertion_device.name = nx.NXfield('EPU105')
+            nxfile.entry.instrument.insertion_device.FEH = nx.NXfield(np.round(values["FEslit_h_gap_readback"],2), units='mm')   # PV:FE:C21A-OP{Slt:12-Ax:X}t2.C
+            nxfile.entry.instrument.insertion_device.FEV = nx.NXfield(np.round(values["FEslit_v_gap_readback"],2), units='mm')   # PV:FE:C21A-OP{Slt:12-Ax:Y}t2.C
+            nxfile.entry.instrument.insertion_device.gap_105 = nx.NXfield(np.round(values["EPU105_gap"],2), units='mm')   # PV:SR:C21-ID:G1B{EPU:2-Ax:Gap}Mtr.RBV
+            nxfile.entry.instrument.insertion_device.phase_105 = nx.NXfield(np.round(values["EPU105_phase"],2), units='mm')   # PV:SR:C21-ID:G1B{EPU:2-Ax:Phase}Mtr.RBV
+            nxfile.entry.instrument.insertion_device.gap_57 = nx.NXfield(np.round(values["EPU57_gap"],2), units='mm')   # PV:SR:C21-ID:G1A{EPU:1-Ax:Gap}Mtr.RBV
+            nxfile.entry.instrument.insertion_device.phase_57 = nx.NXfield(np.round(values["EPU57_phase"],2), units='mm')   # PV:SR:C21-ID:G1A{EPU:1-Ax:Phase}Mtr.RBV
 
-        nxfile.entry.instrument.manipulator=nx.NXpositioner()
-        nxfile.entry.instrument.manipulator.type=nx.NXfield('6dof-xyzRxRyRz')
-        nxfile.entry.instrument.manipulator.pos_z=nx.NXfield(np.round(values["LT_Z"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Z}Mtr.RBV
-        nxfile.entry.instrument.manipulator.pos_Rx=nx.NXfield(np.round(values["LT_Rx"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R3}Mtr.RBV
-        nxfile.entry.instrument.manipulator.pos_Ry=nx.NXfield(np.round(values["LT_Ry"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R1}Mtr.RBV
-        nxfile.entry.instrument.manipulator.pos_Rz=nx.NXfield(np.round(values["LT_Rz"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R2}Mtr.RBV
-        nxfile.entry.instrument.manipulator.D1=nx.NXfield(np.round(values["D1"],2),units='K')  # F:21IDD-ES{PS:Heat3}D1_RB
-        nxfile.entry.instrument.manipulator.D2=nx.NXfield(np.round(values["D2"],2),units='K')  # XF:21IDD-ES{PS:Heat3}D2_RB
-        nxfile.entry.instrument.manipulator.Stinger=nx.NXfield(np.round(values["Stinger"],2),units='K')  # XF:21ID1-ES{TCtrl:2-Chan:A}T-I
-        nxfile.entry.instrument.manipulator.sample_bias=nx.NXfield(0, units='V')
+            nxfile.entry.instrument.monochromator=nx.NXmonochromator()
+            nxfile.entry.instrument.monochromator.grating=nx.NXfield(values["PGM_Grating_lines"], units='lines/mm')
+            nxfile.entry.instrument.monochromator.energy=nx.NXfield(np.round(values["PGM_Energy"],4), units='eV')  # PV:XF:21IDB-OP{Mono:1-Ax:8_Eng}Mtr.RBV
+            nxfile.entry.instrument.monochromator.h_gap=nx.NXfield(np.round(values["ExitSlitA_h_gap"],1), units='um')  # PV:XF:21IDC-OP{Slt:1A-Ax:A1_HG}Mtr.RBV
+            nxfile.entry.instrument.monochromator.v_gap=nx.NXfield(np.round(values["ExitSlitA_v_gap"],1), units='um')  # PV:XF:21IDC-OP{Slt:1A-Ax:A1_VG}Mtr.RBV
 
-        user_note = str(run_client.start.get("user_note", ""))
-        nxfile.entry.note = nx.NXnote()
-        nxfile.entry.note.description = nx.NXfield(user_note)
-        nxfile.entry.note.bluesky_uid = nx.NXfield(run_client.start['uid'])
+            nxfile.entry.instrument.manipulator=nx.NXpositioner()
+            nxfile.entry.instrument.manipulator.type=nx.NXfield('6dof-xyzRxRyRz')
+            nxfile.entry.instrument.manipulator.pos_z=nx.NXfield(np.round(values["LT_Z"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Z}Mtr.RBV
+            nxfile.entry.instrument.manipulator.pos_Rx=nx.NXfield(np.round(values["LT_Rx"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R3}Mtr.RBV
+            nxfile.entry.instrument.manipulator.pos_Ry=nx.NXfield(np.round(values["LT_Ry"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R1}Mtr.RBV
+            nxfile.entry.instrument.manipulator.pos_Rz=nx.NXfield(np.round(values["LT_Rz"],2),units='degree')  # PV:XF:21IDD-ES{PRV-Ax:R2}Mtr.RBV
+            nxfile.entry.instrument.manipulator.D1=nx.NXfield(np.round(values["D1"],2),units='K')  # F:21IDD-ES{PS:Heat3}D1_RB
+            nxfile.entry.instrument.manipulator.D2=nx.NXfield(np.round(values["D2"],2),units='K')  # XF:21IDD-ES{PS:Heat3}D2_RB
+            nxfile.entry.instrument.manipulator.Stinger=nx.NXfield(np.round(values["Stinger"],2),units='K')  # XF:21ID1-ES{TCtrl:2-Chan:A}T-I
+            nxfile.entry.instrument.manipulator.sample_bias=nx.NXfield(0, units='V')
 
-        # Custom metadata for XY scans only -- include arrays of scanned positions
-        if (user_note == "XY scan") and (run_client.start.get("plan_name") == "grid_scan"):
-            # Parse plan arguments, `(motor_1, start_1, stop_1, num_1, motor_2, start_2, stop_2, num_2, ...)`
-            plan_args = run_client.start['plan_args']['args']
-            x_linear_grid = np.round(np.linspace(plan_args[1], plan_args[2], plan_args[3]), 4)
-            y_linear_grid = np.round(np.linspace(plan_args[5], plan_args[6], plan_args[7]), 4)
-            # If the first motor is Y, swap the order of the grids
-            if "LT_Y" in plan_args[0] and "LT_X" in plan_args[4]:
-                x_linear_grid, y_linear_grid = y_linear_grid, x_linear_grid
-            nxfile.entry.instrument.manipulator.pos_x = nx.NXfield(x_linear_grid, units='mm')
-            nxfile.entry.instrument.manipulator.pos_y = nx.NXfield(y_linear_grid, units='mm')
-            # Keep the lists of actual positions
-            nxfile.entry.instrument.manipulator.pos_act_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
-            nxfile.entry.instrument.manipulator.pos_act_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
-        elif user_note == "XAS scan":
-            primary = run_client["primary"].read(variables = ['PGM_Energy', 'qem07_current1_mean_value', 'mbs_total_intensity'])
+            user_note = str(run_client.start.get("user_note", ""))
+            nxfile.entry.note = nx.NXnote()
+            nxfile.entry.note.description = nx.NXfield(user_note)
+            nxfile.entry.note.bluesky_uid = nx.NXfield(run_client.start['uid'])
 
-            # Sort the arrays according to energy levels
-            energy_arr = primary['PGM_Energy'].to_numpy()
-            sorted_indices = np.argsort(energy_arr)
-            energy_arr = energy_arr[sorted_indices]
-            current_arr = primary['qem07_current1_mean_value'].to_numpy()[sorted_indices]
-            intensity_arr = primary['mbs_total_intensity'].to_numpy()[sorted_indices]
+            # Custom metadata for XY scans only -- include arrays of scanned positions
+            if (user_note == "XY scan") and (run_client.start.get("plan_name") == "grid_scan"):
+                # Parse plan arguments, `(motor_1, start_1, stop_1, num_1, motor_2, start_2, stop_2, num_2, ...)`
+                plan_args = run_client.start['plan_args']['args']
+                x_linear_grid = np.round(np.linspace(plan_args[1], plan_args[2], plan_args[3]), 4)
+                y_linear_grid = np.round(np.linspace(plan_args[5], plan_args[6], plan_args[7]), 4)
+                # If the first motor is Y, swap the order of the grids
+                if "LT_Y" in plan_args[0] and "LT_X" in plan_args[4]:
+                    x_linear_grid, y_linear_grid = y_linear_grid, x_linear_grid
+                nxfile.entry.instrument.manipulator.pos_x = nx.NXfield(x_linear_grid, units='mm')
+                nxfile.entry.instrument.manipulator.pos_y = nx.NXfield(y_linear_grid, units='mm')
+                # Keep the lists of actual positions
+                nxfile.entry.instrument.manipulator.pos_act_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
+                nxfile.entry.instrument.manipulator.pos_act_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
+            elif user_note == "XAS scan":
+                primary = run_client["primary"].read(variables = ['PGM_Energy', 'qem07_current1_mean_value', 'mbs_total_intensity'])
 
-            nxfile.entry.instrument.monochromator.energy_arr=nx.NXfield(np.round(energy_arr, 4), units='eV')
-            nxfile.entry.instrument.monochromator.current_arr=nx.NXfield(np.round(current_arr, 4), units='uA')
-            nxfile.entry.instrument.monochromator.intensity_arr=nx.NXfield(np.round(intensity_arr, 4))
-            nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
-            nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
-        else:
-            nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
-            nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
+                # Sort the arrays according to energy levels
+                energy_arr = primary['PGM_Energy'].to_numpy()
+                sorted_indices = np.argsort(energy_arr)
+                energy_arr = energy_arr[sorted_indices]
+                current_arr = primary['qem07_current1_mean_value'].to_numpy()[sorted_indices]
+                intensity_arr = primary['mbs_total_intensity'].to_numpy()[sorted_indices]
+
+                nxfile.entry.instrument.monochromator.energy_arr=nx.NXfield(np.round(energy_arr, 4), units='eV')
+                nxfile.entry.instrument.monochromator.current_arr=nx.NXfield(np.round(current_arr, 4), units='uA')
+                nxfile.entry.instrument.monochromator.intensity_arr=nx.NXfield(np.round(intensity_arr, 4))
+                nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
+                nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
+            else:
+                nxfile.entry.instrument.manipulator.pos_x=nx.NXfield(np.round(values["LT_X"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:X}Mtr.RBV
+                nxfile.entry.instrument.manipulator.pos_y=nx.NXfield(np.round(values["LT_Y"],4),units='mm')  # PV:XF:21IDD-ES{PRV-Ax:Y}Mtr.RBV
 
     elapsed_time = time.monotonic() - start_time
     logger.info(f"Finished exporting metadata; {elapsed_time = }")
