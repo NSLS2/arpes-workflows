@@ -6,9 +6,8 @@ import numpy as np
 
 from pathlib import Path
 from prefect import flow, task, get_run_logger
-from prefect.blocks.system import Secret
-from tiled.client import from_profile
 from tiled.utils import path_from_uri
+from data_validation import get_run
 
 
 @task(retries=2, retry_delay_seconds=10)
@@ -153,9 +152,7 @@ def export_metadata_task(run_client):
 def metadata_export_flow(uid, beamline_acronym="arpes"):
     logger = get_run_logger()
 
-    api_key = Secret.load(f"tiled-{beamline_acronym}-api-key", _sync=True).get()
-    tiled_client = from_profile("nsls2", api_key=api_key)
-    run_client = tiled_client[beamline_acronym]["migration"][uid]
+    run_client = get_run(uid, beamline_acronym=beamline_acronym, api_key=api_key)
     logger.info(f"Obtained a Tiled client for Bluesky Run with uid {uid}. Exporting metadata...")
 
     if ('primary' in run_client) and ('mbs_image' in run_client['primary']):
