@@ -1,21 +1,34 @@
 import time
 
 from prefect import flow, task, get_run_logger
-from prefect.blocks.system import Secret
 
 from bluesky_tiled_plugins.writing.validator import validate
-from tiled.client import from_profile
+from tiled.client import from_uri
+from dotenv import load_dotenv
+
+
+def get_api_key_from_env(api_key=None):
+    with open("/srv/container.secret", "r") as secrets:
+        load_dotenv(stream=secrets)
+    api_key = os.environ["TILED_API_KEY"]
+    return api_key
+
+
+@task
+def get_run(uid, beamline_acronym=None, api_key=None):
+    if not api_key:
+        api_key = get_api_key_from_env()
+    cl = from_uri("https://tiled.nsls2.bnl.gov", api_key=api_key)
+    run = cl[f"{beamline_acronym}/migration"][uid] # TODO change to raw after migration is complete
+    return run
 
 
 @task(retries=3, retry_delay_seconds=20)
 def data_validation_task(uid, beamline_acronym="arpes"):
     logger = get_run_logger()
 
-    api_key = Secret.load(f"tiled-{beamline_acronym}-api-key", _sync=True).get()
-    tiled_client = from_profile("nsls2", api_key=api_key)
-
     logger.info(f"Connecting to Tiled client for beamline '{beamline_acronym}'")
-    run_client = tiled_client[f"{beamline_acronym}/migration"][uid]
+    run_client = get_run(uid, beamline_acronym=beamline_acronym)
 
     logger.info(f"Validating uid {uid}")
     start_time = time.monotonic()
