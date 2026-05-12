@@ -19,7 +19,7 @@ def get_run(uid, beamline_acronym=None, api_key=None):
     if not api_key:
         api_key = get_api_key_from_env()
     cl = from_uri("https://tiled.nsls2.bnl.gov", api_key=api_key)
-    run = cl[f"{beamline_acronym}/migration"][uid]
+    run = cl[f"{beamline_acronym}/migration"][uid] # TODO change to raw after migration is complete
     return run
 
 
