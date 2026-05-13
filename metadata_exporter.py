@@ -50,7 +50,7 @@ def export_metadata_task(run_client, dry_run=False):
                 'mbs_xscale_min', 'mbs_xscale_max', 'mbs_num_slice', 'mbs_psu_mode', \
                 'mbs_pass_energy', 'mbs_lens_mode', 'mbs_acq_mode', 'mbs_width', \
                 'mbs_center_ke', 'mbs_start_ke', 'mbs_end_ke', 'mbs_step_size', \
-                'mbs_num_slice', 'mbs_num_steps', 'mbs_frames']
+                'mbs_num_slice', 'mbs_num_steps', 'mbs_frames', 'mbs_slit_no', 'mbs_connection_type']
     values = {k: v.item() for k, v in primary.data_vars.items()} \
         | {k: v.item() for k, v in baseline.data_vars.items()} \
         | {k: config_data[k] for k in config_keys}
@@ -81,6 +81,8 @@ def export_metadata_task(run_client, dry_run=False):
             nxfile.entry.instrument.analyzer.kinetic_energy_step = nx.NXfield(values["mbs_step_size"], units='eV')
             nxfile.entry.instrument.analyzer.number_of_iterations = nx.NXfield(values["mbs_act_scans"])
             nxfile.entry.instrument.analyzer.psu_mode=nx.NXfield(values["mbs_psu_mode"]) 
+            nxfile.entry.instrument.analyzer.slit_no=nx.NXfield(values["mbs_slit_no"]) 
+            nxfile.entry.instrument.analyzer.connection_type=nx.NXfield(values["mbs_connection_type"]) 
             nxfile.entry.instrument.analyzer.slices=nx.NXfield(values["mbs_num_slice"])
             nxfile.entry.instrument.analyzer.steps=nx.NXfield(values["mbs_num_steps"])
             nxfile.entry.instrument.analyzer.time_for_frames=nx.NXfield(values["mbs_frames"], units='ms')
