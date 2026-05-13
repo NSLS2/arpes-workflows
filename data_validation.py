@@ -25,11 +25,11 @@ def get_run(uid, beamline_acronym="arpes", api_key=None):
 
 
 @task(retries=3, retry_delay_seconds=20)
-def data_validation_task(uid, beamline_acronym="arpes"):
+def data_validation_task(uid, beamline_acronym="arpes", api_key=None):
     logger = get_run_logger()
 
     logger.info(f"Connecting to Tiled client for beamline '{beamline_acronym}'")
-    run_client = get_run(uid, beamline_acronym=beamline_acronym)
+    run_client = get_run(uid, beamline_acronym=beamline_acronym, api_key=api_key)
 
     logger.info(f"Validating uid {uid}")
     start_time = time.monotonic()
@@ -39,5 +39,5 @@ def data_validation_task(uid, beamline_acronym="arpes"):
 
 
 @flow(log_prints=True)
-def data_validation_flow(uid):
-    data_validation_task(uid)
+def data_validation_flow(uid, api_key=None):
+    data_validation_task(uid, api_key=api_key)
