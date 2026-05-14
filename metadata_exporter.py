@@ -29,8 +29,8 @@ def export_metadata_task(run_client, dry_run=False):
 
     # Copy the file to the destination directory and update the fpath variable
     # For example:
-    # /nsls2/data3/esm/proposals/commissioning/pass-319467/assets/mbs/2025_12_11/sample_name/TEST_0002.nxs
-    # /nsls2/data3/esm/proposals/commissioning/pass-319467/export/2025_12_11/sample_name/TEST_0002.nxs
+    # /nsls2/data/esm/proposals/commissioning/pass-319467/assets/mbs/2025_12_11/sample_name/TEST_0002.nxs
+    # /nsls2/data/esm/proposals/commissioning/pass-319467/export/2025_12_11/sample_name/TEST_0002.nxs
     prefix, suffix = str(fpath_orig).split("assets")
     suffix = suffix.split("/", 2)[-1]
     fpath_dest = Path(prefix) / "export" / suffix
@@ -101,7 +101,7 @@ def export_metadata_task(run_client, dry_run=False):
     values = (
         {k: v.item() for k, v in primary.data_vars.items()}
         | {k: v.item() for k, v in baseline.data_vars.items()}
-        | {k: config_data[k] for k in config_keys}
+        | {k: config_data.get(k) for k in config_keys}
     )
 
     # Add metadata to new (copied) NeXus file
@@ -331,6 +331,12 @@ def metadata_export_flow(uid, beamline_acronym="arpes", api_key=None, dry_run=Fa
     logger.info(
         f"Obtained a Tiled client for Bluesky Run with uid {uid}. Exporting metadata..."
     )
+
+    if "baseline" not in run_client:
+        logger.warning(
+            f"Run {uid} does not have 'baseline' data. Skipping metadata export."
+        )
+        return
 
     if ("primary" in run_client) and ("mbs_image" in run_client["primary"]):
         export_metadata_task(run_client, dry_run=dry_run)
