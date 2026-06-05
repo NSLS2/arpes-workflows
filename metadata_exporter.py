@@ -66,6 +66,7 @@ def export_metadata_task(run_client, dry_run=False):
                 "D1",
                 "D2",
                 "Stinger",
+                "D3",
             ]
         )
         .tail(1)
@@ -241,6 +242,9 @@ def export_metadata_task(run_client, dry_run=False):
             nxfile.entry.instrument.manipulator.Stinger = nx.NXfield(
                 np.round(values["Stinger"], 2), units="K"
             )  # XF:21ID1-ES{TCtrl:2-Chan:A}T-I
+            nxfile.entry.instrument.manipulator.D3 = nx.NXfield(
+                np.round(values["D3"], 2), units="K"
+            )  # XF:21ID1-ES{TCtrl:2-Chan:B}T-I
             nxfile.entry.instrument.manipulator.sample_bias = nx.NXfield(0, units="V")
 
             user_note = str(run_client.start.get("user_note", ""))
