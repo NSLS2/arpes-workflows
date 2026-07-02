@@ -284,7 +284,7 @@ def export_metadata_task(run_client, dry_run=False):
                 primary = run_client["primary"].read(
                     variables=[
                         "PGM_Energy",
-                        "qem07_current1_mean_value",
+                        "xqem01_current2_mean_value",
                         "mbs_total_intensity",
                     ]
                 )
@@ -293,7 +293,7 @@ def export_metadata_task(run_client, dry_run=False):
                 energy_arr = primary["PGM_Energy"].to_numpy()
                 sorted_indices = np.argsort(energy_arr)
                 energy_arr = energy_arr[sorted_indices]
-                current_arr = primary["qem07_current1_mean_value"].to_numpy()[
+                current_arr = primary["xqem01_current2_mean_value"].to_numpy()[
                     sorted_indices
                 ]
                 intensity_arr = primary["mbs_total_intensity"].to_numpy()[
