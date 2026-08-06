@@ -220,7 +220,7 @@ def export_metadata_task(run_client, dry_run=False):
             )  # PV:XF:21IDC-OP{Slt:1A-Ax:A1_VG}Mtr.RBV
             if "xqem01_current2_mean_value" in values:
                 nxfile.entry.instrument.monochromator.i0 = nx.NXfield(
-                    np.round(values["xqem01_current2_mean_value"], 1)
+                    np.round(values["xqem01_current2_mean_value"], 1), units="uA"
                 )  # PV:XF:21IDA-BI{EM:BPM01}Current2:MeanValue_RBV
 
             nxfile.entry.instrument.manipulator = nx.NXpositioner()
