@@ -73,7 +73,7 @@ def export_metadata_task(run_client, dry_run=False):
     )
     primary = (
         run_client["primary"]
-        .read(variables=["mbs_dith_steps", "mbs_act_scans"])
+        .read(variables=["mbs_dith_steps", "mbs_act_scans", "xqem01_current2_mean_value"])
         .tail(1)
     )
     config_data = run_client["primary"].metadata["configuration"]["mbs"]["data"]
@@ -218,6 +218,9 @@ def export_metadata_task(run_client, dry_run=False):
             nxfile.entry.instrument.monochromator.v_gap = nx.NXfield(
                 np.round(values["ExitSlitA_v_gap"], 1), units="um"
             )  # PV:XF:21IDC-OP{Slt:1A-Ax:A1_VG}Mtr.RBV
+            nxfile.entry.instrument.monochromator.i0 = nx.NXfield(
+                np.round(values["xqem01_current2_mean_value"], 1)
+            )  # PV:XF:21IDA-BI{EM:BPM01}Current2:MeanValue_RBV
 
             nxfile.entry.instrument.manipulator = nx.NXpositioner()
             nxfile.entry.instrument.manipulator.type = nx.NXfield("6dof-xyzRxRyRz")
