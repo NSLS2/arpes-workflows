@@ -73,9 +73,10 @@ def export_metadata_task(run_client, dry_run=False):
     )
     primary = (
         run_client["primary"]
-        .read(variables=["mbs_dith_steps", "mbs_act_scans", "xqem01_current2_mean_value"])
+        .read(variables=["mbs_dith_steps", "mbs_act_scans"])
         .tail(1)
     )
+    primary_full = run_client["primary"].read(variables=["xqem01_current2_mean_value"])
     config_data = run_client["primary"].metadata["configuration"]["mbs"]["data"]
     config_keys = [
         "mbs_escale_min",
@@ -101,6 +102,7 @@ def export_metadata_task(run_client, dry_run=False):
     ]
     values = (
         {k: v.item() for k, v in primary.data_vars.items()}
+        | {k: v.item() for k, v in primary_full.data_vars.items()}
         | {k: v.item() for k, v in baseline.data_vars.items()}
         | {k: config_data.get(k) for k in config_keys}
     )
@@ -220,7 +222,7 @@ def export_metadata_task(run_client, dry_run=False):
             )  # PV:XF:21IDC-OP{Slt:1A-Ax:A1_VG}Mtr.RBV
             if "xqem01_current2_mean_value" in values:
                 nxfile.entry.instrument.monochromator.i0 = nx.NXfield(
-                    np.round(values["xqem01_current2_mean_value"], 1), units="uA"
+                values["xqem01_current2_mean_value"], units="uA"
                 )  # PV:XF:21IDA-BI{EM:BPM01}Current2:MeanValue_RBV
 
             nxfile.entry.instrument.manipulator = nx.NXpositioner()
