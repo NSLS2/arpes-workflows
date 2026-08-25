@@ -3,7 +3,6 @@ import os
 
 from prefect import flow, task, get_run_logger
 
-from bluesky_tiled_plugins.writing.validator import validate
 from tiled.client import from_uri
 from dotenv import load_dotenv
 
