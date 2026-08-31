@@ -102,7 +102,7 @@ def export_metadata_task(run_client, dry_run=False):
     ]
     values = (
         {k: v.item() for k, v in primary.data_vars.items()}
-        | {k: v.item() for k, v in primary_full.data_vars.items()}
+        | {k: v for k, v in primary_full.data_vars.items()}
         | {k: v.item() for k, v in baseline.data_vars.items()}
         | {k: config_data.get(k) for k in config_keys}
     )
