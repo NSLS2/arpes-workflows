@@ -55,6 +55,7 @@ def export_metadata_task(run_client, dry_run=False):
                 "EPU57_phase",
                 "PGM_Grating_lines",
                 "PGM_Energy",
+                "PGM_Focus_Const",
                 "ExitSlitA_h_gap",
                 "ExitSlitA_v_gap",
                 "LT_X",
@@ -222,8 +223,12 @@ def export_metadata_task(run_client, dry_run=False):
             )  # PV:XF:21IDC-OP{Slt:1A-Ax:A1_VG}Mtr.RBV
             if "xqem01_current2_mean_value" in values:
                 nxfile.entry.instrument.monochromator.i0 = nx.NXfield(
-                values["xqem01_current2_mean_value"], units="uA"
+                    values["xqem01_current2_mean_value"], units="uA"
                 )  # PV:XF:21IDA-BI{EM:BPM01}Current2:MeanValue_RBV
+            if "PGM_Focus_Const" in values:
+                nxfile.entry.instrument.monochromator.c_value = nx.NXfield(
+                    values["PGM_Focus_Const"]
+                )
 
             nxfile.entry.instrument.manipulator = nx.NXpositioner()
             nxfile.entry.instrument.manipulator.type = nx.NXfield("6dof-xyzRxRyRz")
