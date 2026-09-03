@@ -77,6 +77,7 @@ def export_metadata_task(run_client, dry_run=False):
         .tail(1)
     )
     primary_full = run_client["primary"].read(variables=["xqem01_current2_mean_value"])
+    baseline_full = run_client["baseline"].read(variables=["PGM_Focus_Const"])
     config_data = run_client["primary"].metadata["configuration"]["mbs"]["data"]
     config_keys = [
         "mbs_escale_min",
@@ -104,6 +105,7 @@ def export_metadata_task(run_client, dry_run=False):
         {k: v.item() for k, v in primary.data_vars.items()}
         | {k: v for k, v in primary_full.data_vars.items()}
         | {k: v.item() for k, v in baseline.data_vars.items()}
+        | {k: v for k, v in baseline_full.data_vars.items()}
         | {k: config_data.get(k) for k in config_keys}
     )
 
@@ -224,6 +226,10 @@ def export_metadata_task(run_client, dry_run=False):
                 nxfile.entry.instrument.monochromator.i0 = nx.NXfield(
                 values["xqem01_current2_mean_value"], units="uA"
                 )  # PV:XF:21IDA-BI{EM:BPM01}Current2:MeanValue_RBV
+            if "PGM_Focus_Const" in values:
+                nxfile.entry.instrument.monochromator.c_value = nx.NXfield(
+                values["PGM_Focus_Const"]
+            )
 
             nxfile.entry.instrument.manipulator = nx.NXpositioner()
             nxfile.entry.instrument.manipulator.type = nx.NXfield("6dof-xyzRxRyRz")
