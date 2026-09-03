@@ -55,6 +55,7 @@ def export_metadata_task(run_client, dry_run=False):
                 "EPU57_phase",
                 "PGM_Grating_lines",
                 "PGM_Energy",
+                "PGM_Focus_Const",
                 "ExitSlitA_h_gap",
                 "ExitSlitA_v_gap",
                 "LT_X",
@@ -77,7 +78,6 @@ def export_metadata_task(run_client, dry_run=False):
         .tail(1)
     )
     primary_full = run_client["primary"].read(variables=["xqem01_current2_mean_value"])
-    baseline_full = run_client["baseline"].read(variables=["PGM_Focus_Const"])
     config_data = run_client["primary"].metadata["configuration"]["mbs"]["data"]
     config_keys = [
         "mbs_escale_min",
@@ -105,7 +105,6 @@ def export_metadata_task(run_client, dry_run=False):
         {k: v.item() for k, v in primary.data_vars.items()}
         | {k: v for k, v in primary_full.data_vars.items()}
         | {k: v.item() for k, v in baseline.data_vars.items()}
-        | {k: v for k, v in baseline_full.data_vars.items()}
         | {k: config_data.get(k) for k in config_keys}
     )
 
