@@ -225,9 +225,10 @@ def export_metadata_task(run_client, dry_run=False):
                 nxfile.entry.instrument.monochromator.i0 = nx.NXfield(
                     values["xqem01_current2_mean_value"], units="uA"
                 )  # PV:XF:21IDA-BI{EM:BPM01}Current2:MeanValue_RBV
-            if "PGM_Focus_Const" in values:
+            pgm_focus_const = values.get("PGM_Focus_Const")
+            if pgm_focus_const is not None:
                 nxfile.entry.instrument.monochromator.c_value = nx.NXfield(
-                    values["PGM_Focus_Const"]
+                    pgm_focus_const
                 )
 
             nxfile.entry.instrument.manipulator = nx.NXpositioner()
