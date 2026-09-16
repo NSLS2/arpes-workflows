@@ -228,7 +228,7 @@ def export_metadata_task(run_client, dry_run=False):
             pgm_focus_const = values.get("PGM_Focus_Const")
             if pgm_focus_const is not None:
                 nxfile.entry.instrument.monochromator.c_value = nx.NXfield(
-                    pgm_focus_const
+                    np.round(pgm_focus_const, 2)
                 )
 
             nxfile.entry.instrument.manipulator = nx.NXpositioner()
