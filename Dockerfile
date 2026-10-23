@@ -1,4 +1,4 @@
-FROM ghcr.io/prefix-dev/pixi:0.71.3
+FROM ghcr.io/prefix-dev/pixi:0.82.1
 
 ENV TZ="America/New_York"
 
